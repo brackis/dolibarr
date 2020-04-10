@@ -553,6 +553,88 @@ function pdf_build_address($outputlangs, $sourcecompany, $targetcompany = '', $t
     		{
     			if ($targetcompany->tva_intra) $stringaddress .= ($stringaddress ? "\n" : '').$outputlangs->transnoentities("VATIntraShort").': '.$outputlangs->convToOutputCharset($targetcompany->tva_intra);
     		}
+			
+			/* MEDECOM : adding legal text related to the type of good and country_code
+			Type 1 is Soft and/or Services
+			Type 2 is Hardware
+			Type 3 is both
+			*/
+			
+			if ($object->array_options['options_typeofgood']==1)
+			{
+				switch ($targetcompany->country_code)
+				{
+					case "FR":
+						BREAK;
+					case "GF":
+					case "YT":
+						$stringaddress.="\n\nTVA non applicable - art. 294 du cgi";
+						BREAK;
+					case "MQ":
+					case "GP":
+					case "RE":
+						BREAK;
+					default:
+						if( !$targetcompany->isInEEC())
+						{
+							$stringaddress.="\n\nTVA non applicable - art.259-1 du CGI";
+						}
+						else
+						{
+							$stringaddress.="\n\nAutoliquidation";
+						}
+				}
+			}
+			elseif ($object->array_options['options_typeofgood']==2)
+			{
+				switch ($targetcompany->country_code)
+				{
+					case "FR":
+						BREAK;
+					case "GF":
+					case "YT":
+					case "MQ":
+					case "GP":
+					case "RE":
+						$stringaddress.="\n\nTVA non applicable - art. 294 du cgi";
+						BREAK;
+					default:
+						if( !$targetcompany->isInEEC())
+						{
+							$stringaddress.="\n\nTVA non applicable - art.262-I du CGI";
+						}
+						else
+						{
+							$stringaddress.="\n\nExonération de la TVA : Art 262 ter I du CGI";
+						}
+				}
+			}
+			// Hard + soft is same than Hard. This block exist only if it changes in the future
+			elseif ($object->array_options['options_typeofgood'] == 3)
+			{
+				switch ($targetcompany->country_code)
+				{
+					case "FR":
+						BREAK;
+					case "GF":
+					case "YT":
+					case "MQ":
+					case "GP":
+					case "RE":
+						$stringaddress.="\n\nTVA non applicable - art. 294 du cgi";
+						BREAK;
+					default:
+						if( !$targetcompany->isInEEC())
+						{
+							$stringaddress.="\n\nTVA non applicable - art.262-I du CGI";
+						}
+						else
+						{
+							$stringaddress.="\n\nExonération de la TVA : Art 262 ter I du CGI";
+						}
+				}
+			}
+			//MEdecom End
 
     		// Professionnal Ids
     		if (!empty($conf->global->MAIN_PROFID1_IN_ADDRESS) && !empty($targetcompany->idprof1))

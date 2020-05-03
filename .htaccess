@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+
+    RewriteRule ^(.*)$ /htdocs/$1 [NC,L,QSA]
+</IfModule>
